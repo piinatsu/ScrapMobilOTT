@@ -30,3 +30,4 @@ class OttItem(scrapy.Item):
     province = scrapy.Field()
     city = scrapy.Field()
     fetch_date = scrapy.Field()
+    last_updated = scrapy.Field()

@@ -10,7 +10,7 @@ from datetime import datetime
 class OttbotSpider(scrapy.Spider):
     name = 'ottbot5'
 
-    start_urls = ["https://www.mobil123.com/mobil-dijual/indonesia?type=used&page_number=1&page_size=5"]
+    start_urls = ["https://www.mobil123.com/mobil-dijual/indonesia?type=used&page_number=1&page_size=50"]
 
     def parse(self, response):
         item = OttItem()
@@ -46,7 +46,7 @@ class OttbotSpider(scrapy.Spider):
         page_num = int(next_page)
         print(page_num)
         try:
-            if page_num <= 5:
+            if page_num < 200:
                 pagination_links = response.css('li.next a')
                 yield from response.follow_all(pagination_links, self.parse)
             else:
@@ -84,27 +84,30 @@ class OttbotSpider(scrapy.Spider):
         except AttributeError:
             print("AttributeError: Price doesn't exist")
 
+        last_updated = ((response.css('.c-section--masthead .u-flex .u-color-muted ::text').get()).strip()).split(': ')[1]
+
         # response.css('article').attrib['data-listing-id']
         # response.css('div.u-flex--wrap :nth-child(2) ::text')
         yield {
             'listing_id': fetch('article::attr(data-listing-id)'),
-            'title': fetch('article::attr(data-title)'),
-            'name': fetch('h1.listing__title ::text'),
-            'price': price,
-            'fetch_time': dt,
-            'color': response.css('span.u-text-bold.u-block ::text')[3].get(),
-            'displacement': int((response.css('span.u-text-bold.u-block ::text')[4].get()).split(' ')[0]),
-            'transmission': response.css('span.u-text-bold.u-block ::text')[5].get(),
-            # 'make': fetch('article::attr(date-make)'),
+            'year': fetch('article::attr(data-year)'),
             'make': (response.css('h1.listing__title ::text').get()).split(' ')[1],
             'model': fetch('article::attr(data-model)'),
             'variant': fetch('article::attr(data-variant)'),
-            'year': fetch('article::attr(data-year)'),
+            'displacement': int((response.css('span.u-text-bold.u-block ::text')[4].get()).split(' ')[0]),
+            'transmission': response.css('span.u-text-bold.u-block ::text')[5].get(),
+            'color': response.css('span.u-text-bold.u-block ::text')[3].get(),
             'mileage': fetch('article::attr(data-mileage)'),
-            'ad_type': fetch('article::attr(data-ad-type)'),
+            'price': price,
             'province': fetch('div.u-flex--wrap :nth-child(2) ::text'),
             'city': fetch('div.u-flex--wrap :nth-child(3) ::text'),
-            'url': response.url,
+            # 'title': fetch('article::attr(data-title)'),
+            'name': fetch('h1.listing__title ::text'),
+            'last_updated': last_updated,
+            # 'fetch_time': dt,
+            # 'ad_type': fetch('article::attr(data-ad-type)'),
+            # 'url': response.url
+
             # item['province'] = response.css('div.c-card span.c-chip ::text')[-2].extract()
             # item['city'] = response.css('div.c-card span.c-chip ::text')[-1].extract()
         }
