@@ -49,7 +49,8 @@ class OttbotSpider(scrapy.Spider):
         now = datetime.now()
         dt = now.strftime("%Y-%m-%d %H:%M:%S")
 
-        last_updated = (response.css('.c-section--masthead div.u-flex span.u-color-muted ::text').get()).strip().split(': ')[0]
+        last_updated = (response.css('.c-section--masthead div.u-flex span.u-color-muted ::text')
+                        .get()).strip().split(': ')[0]
         # response.css('.c-section--masthead div.u-flex span.u-color-muted ::text').get()
         # response.css('.c-section--masthead div.u-flex span.u-color-muted ::text')[1].get()
 
